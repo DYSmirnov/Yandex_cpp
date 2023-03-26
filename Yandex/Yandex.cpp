@@ -1,267 +1,75 @@
-#include <algorithm>
-#include <cmath>
 #include <iostream>
-#include <map>
-#include <set>
-#include <string>
-#include <utility>
+#include <stdexcept>
 #include <vector>
-#include <tuple>
-#include <locale.h>
 
 using namespace std;
 
-const int MAX_RESULT_DOCUMENT_COUNT = 5;
+class Tower {
+public:
+    // конструктор и метод SetDisks нужны, чтобы правильно создать башни
+    Tower(int disks_num) {
+        FillTower(disks_num);
+    }
 
-string ReadLine() {
-	string s;
-	getline(cin, s);
-	return s;
-}
+    int GetDisksNum() const {
+        return disks_.size();
+    }
 
-int ReadLineWithNumber() {
-	int result;
-	cin >> result;
-	ReadLine();
-	return result;
-}
+    void SetDisks(int disks_num) {
+        FillTower(disks_num);
+    }
 
-vector<string> SplitIntoWords(const string& text) {
-	vector<string> words;
-	string word;
-	for (const char c : text) {
-		if (c == ' ') {
-			if (!word.empty()) {
-				words.push_back(word);
-				word.clear();
-			}
-		}
-		else {
-			word += c;
-		}
-	}
-	if (!word.empty()) {
-		words.push_back(word);
-	}
+    // добавляем диск на верх собственной башни
+    // обратите внимание на исключение, которое выбрасывается этим методом
+    void AddToTop(int disk) {
+        int top_disk_num = disks_.size() - 1;
+        if (0 != disks_.size() && disk >= disks_[top_disk_num]) {
+            throw invalid_argument("Невозможно поместить большой диск на маленький");
+        }
+        else {
+            // допишите этот метод и используйте его в вашем решении
+        }
+    }
 
-	return words;
-}
+    // вы можете дописывать необходимые для вашего решения методы
 
-struct Document {
-	int id;
-	double relevance;
-	int rating;
+private:
+    vector<int> disks_;
+
+    // используем приватный метод FillTower, чтобы избежать дубликации кода
+    void FillTower(int disks_num) {
+        for (int i = disks_num; i > 0; i--) {
+            disks_.push_back(i);
+        }
+    }
 };
 
-enum class DocumentStatus {
-	ACTUAL,
-	IRRELEVANT,
-	BANNED,
-	REMOVED,
-};
+// disks_num - количество перемещаемых дисков
+// destination - конечная башня для перемещения
+// buffer - башня, которую нужно использовать в качестве буфера для дисков
+void MoveDisks(int disks_num, Tower& destination, Tower& buffer) {
+    if (// условие выхода ещё не выполнено) {
+        // действия из шага рекурсии
+}
+ }
 
+ void SolveHanoi(vector<Tower>& towers) {
+     int disks_num = towers[0].GetDisksNum();
+         // запускаем рекурсию
+         // просим переложить все диски на последнюю башню
+         // с использованием средней башни как буфера
+         towers[0].MoveDisks(disks_num, towers[2], towers[1]);
+ }
 
-
-class SearchServer {
-	public:
-		//tuple <совпавшие слова, статус>
-		tuple<vector<string>, DocumentStatus> MatchDocument(const string& raw_query, int document_id) const
-		{
-			vector<string> query_plus_word;
-			auto query = ParseQuery(raw_query); //plus minus words
-			DocumentStatus status = (documents_.at(document_id)).status;
-			//map<string, map<int, double>> word_to_document_freqs_
-			for (auto& word : query.minus_words)
-			{
-				if (word_to_document_freqs_.count(word) > 0)
-				{
-					query_plus_word.clear();
-					return tuple(query_plus_word, status);
-				}
-			}
-			for (auto& word : query.plus_words)
-			{
-				if (word_to_document_freqs_.count(word) > 0)
-				{
-					if (word_to_document_freqs_.at(word).count(document_id) > 0)
-					{
-						query_plus_word.push_back(word);
-					}
-
-				}
-			}
-			return tuple(query_plus_word, status);
-		}
-
-		int GetDocumentCount() const
-		{
-			return documents_.size();
-		}
-
-		void SetStopWords(const string& text) {
-			for (const string& word : SplitIntoWords(text)) {
-				stop_words_.insert(word);
-			}
-		}
-
-		void AddDocument(int document_id, const string& document, DocumentStatus status,
-			const vector<int>& ratings) {
-			const vector<string> words = SplitIntoWordsNoStop(document);
-			const double inv_word_count = 1.0 / words.size();
-			for (const string& word : words) {
-				word_to_document_freqs_[word][document_id] += inv_word_count;
-			}
-			documents_.emplace(document_id, DocumentData{ ComputeAverageRating(ratings), status });
-		}
-
-		vector<Document> FindTopDocuments(const string& raw_query,
-			DocumentStatus status = DocumentStatus::ACTUAL) const {
-			const Query query = ParseQuery(raw_query);
-			auto matched_documents = FindAllDocuments(query, status);
-
-			sort(matched_documents.begin(), matched_documents.end(),
-				[](const Document& lhs, const Document& rhs) {
-					return lhs.relevance > rhs.relevance;
-				});
-			if (matched_documents.size() > MAX_RESULT_DOCUMENT_COUNT) {
-				matched_documents.resize(MAX_RESULT_DOCUMENT_COUNT);
-			}
-			return matched_documents;
-		}
-
-	private:
-		struct DocumentData {
-			int rating;
-			DocumentStatus status;
-		};
-
-		set<string> stop_words_;
-		map<string, map<int, double>> word_to_document_freqs_;
-		map<int, DocumentData> documents_;
-
-		bool IsStopWord(const string& word) const {
-			return stop_words_.count(word) > 0;
-		}
-
-		vector<string> SplitIntoWordsNoStop(const string& text) const {
-			vector<string> words;
-			for (const string& word : SplitIntoWords(text)) {
-				if (!IsStopWord(word)) {
-					words.push_back(word);
-				}
-			}
-			return words;
-		}
-
-		static int ComputeAverageRating(const vector<int>& ratings) {
-			if (ratings.empty()) {
-				return 0;
-			}
-			int rating_sum = 0;
-			for (const int rating : ratings) {
-				rating_sum += rating;
-			}
-			return rating_sum / static_cast<int>(ratings.size());
-		}
-
-		struct QueryWord {
-			string data;
-			bool is_minus;
-			bool is_stop;
-		};
-
-		QueryWord ParseQueryWord(string text) const {
-			bool is_minus = false;
-			// Word shouldn't be empty
-			if (text[0] == '-') {
-				is_minus = true;
-				text = text.substr(1);
-			}
-			return { text, is_minus, IsStopWord(text) };
-		}
-
-		struct Query {
-			set<string> plus_words;
-			set<string> minus_words;
-		};
-
-		Query ParseQuery(const string& text) const {
-			Query query;
-			for (const string& word : SplitIntoWords(text)) {
-				const QueryWord query_word = ParseQueryWord(word);
-				if (!query_word.is_stop) {
-					if (query_word.is_minus) {
-						query.minus_words.insert(query_word.data);
-					}
-					else {
-						query.plus_words.insert(query_word.data);
-					}
-				}
-			}
-			return query;
-		}
-
-		// Existence required
-		double ComputeWordInverseDocumentFreq(const string& word) const {
-			return log(documents_.size() * 1.0 / word_to_document_freqs_.at(word).size());
-		}
-
-		vector<Document> FindAllDocuments(const Query& query, DocumentStatus status) const {
-			map<int, double> document_to_relevance;
-			for (const string& word : query.plus_words) {
-				if (word_to_document_freqs_.count(word) == 0) {
-					continue;
-				}
-				const double inverse_document_freq = ComputeWordInverseDocumentFreq(word);
-				for (const auto [document_id, term_freq] : word_to_document_freqs_.at(word)) {
-					if (documents_.at(document_id).status == status) {
-						document_to_relevance[document_id] += term_freq * inverse_document_freq;
-					}
-				}
-			}
-
-			for (const string& word : query.minus_words) {
-				if (word_to_document_freqs_.count(word) == 0) {
-					continue;
-				}
-				for (const auto [document_id, _] : word_to_document_freqs_.at(word)) {
-					document_to_relevance.erase(document_id);
-				}
-			}
-
-			vector<Document> matched_documents;
-			for (const auto [document_id, relevance] : document_to_relevance) {
-				matched_documents.push_back(
-					{ document_id, relevance, documents_.at(document_id).rating });
-			}
-			return matched_documents;
-		}
-
-
-	};
-
-	void PrintMatchDocumentResult(int document_id, const vector<string>& words, DocumentStatus status) {
-		cout << "{ "s
-			<< "document_id = "s << document_id << ", "s
-			<< "status = "s << static_cast<int>(status) << ", "s
-			<< "words ="s;
-		for (const string& word : words) {
-			cout << ' ' << word;
-		}
-		cout << "}"s << endl;
-	}
-	int main() {
-		//wcout.imbue(locale(".866"));
-		setlocale(LC_ALL, "RUS");
-		SearchServer search_server;
-		search_server.SetStopWords("и в на"s);
-		search_server.AddDocument(0, "белый кот и модный ошейник"s, DocumentStatus::ACTUAL, { 8, -3 });
-		search_server.AddDocument(1, "пушистый кот пушистый хвост"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
-		search_server.AddDocument(2, "ухоженный пёс выразительные глаза"s, DocumentStatus::ACTUAL, { 5, -12, 2, 1 });
-		search_server.AddDocument(3, "ухоженный скворец евгений"s, DocumentStatus::BANNED, { 9 });
-		const int document_count = search_server.GetDocumentCount();
-		for (int document_id = 0; document_id < document_count; ++document_id) {
-			const auto [words, status] = search_server.MatchDocument("пушистый кот"s, document_id);
-			PrintMatchDocumentResult(document_id, words, status);
-		}
-	}
+int main() {
+    int towers_num = 3;
+    int disks_num = 3;
+    vector<Tower> towers;
+    // добавим в вектор три пустые башни
+    for (int i = 0; i < towers_num; ++i) {
+        towers.push_back(0);
+    }
+    // добавим на первую башню три кольца
+    towers[0].SetDisks(disks_num);
+    SolveHanoi(towers);
+}
