@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TEST_FROM_PAST", "TEST_FROM
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpp-server", "cpp-server\cpp-server.vcxproj", "{E27C05FD-2DC2-4AFA-981E-5A6C7F4EF6F9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpp-server-new_files", "cpp-server-new_files\cpp-server-new_files.vcxproj", "{21A3B21C-CEDB-410C-90C0-72689ED29038}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{E27C05FD-2DC2-4AFA-981E-5A6C7F4EF6F9}.Release|x64.Build.0 = Release|x64
 		{E27C05FD-2DC2-4AFA-981E-5A6C7F4EF6F9}.Release|x86.ActiveCfg = Release|Win32
 		{E27C05FD-2DC2-4AFA-981E-5A6C7F4EF6F9}.Release|x86.Build.0 = Release|Win32
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Debug|x64.ActiveCfg = Debug|x64
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Debug|x64.Build.0 = Debug|x64
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Debug|x86.ActiveCfg = Debug|Win32
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Debug|x86.Build.0 = Debug|Win32
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Release|x64.ActiveCfg = Release|x64
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Release|x64.Build.0 = Release|x64
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Release|x86.ActiveCfg = Release|Win32
+		{21A3B21C-CEDB-410C-90C0-72689ED29038}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
